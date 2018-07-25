@@ -1,0 +1,9 @@
+Source: aiy-board-wlan
+Maintainer: AIY Projects <support-aiyprojects@google.com>
+
+Package: aiy-board-wlan
+Section: net
+Priority: required
+Architecture: all
+Depends:
+Description: Additional configuration for AIY Board wireless networking

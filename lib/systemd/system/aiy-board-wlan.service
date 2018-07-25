@@ -1,0 +1,9 @@
+[Unit]
+Description=AIY Board WLAN
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "echo '/lib/firmware' > /sys/module/wlan/parameters/fwpath"
+
+[Install]
+WantedBy=multi-user.target
