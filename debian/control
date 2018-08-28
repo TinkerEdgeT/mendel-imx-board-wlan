@@ -1,6 +1,8 @@
 Source: aiy-board-wlan
 Maintainer: AIY Projects <support-aiyprojects@google.com>
 Build-Depends: debhelper
+Section: net
+Priority: optional
 
 Package: aiy-board-wlan
 Section: net
