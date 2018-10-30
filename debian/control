@@ -6,7 +6,7 @@ Priority: optional
 
 Package: aiy-board-wlan
 Section: net
-Priority: required
+Priority: optional
 Architecture: all
 Depends:
 Description: Additional configuration for AIY Board wireless networking
