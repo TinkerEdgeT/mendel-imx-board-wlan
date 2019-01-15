@@ -1,12 +1,12 @@
-Source: aiy-board-wlan
+Source: imx-board-wlan
 Maintainer: AIY Projects <support-aiyprojects@google.com>
 Build-Depends: debhelper
 Section: net
 Priority: optional
 
-Package: aiy-board-wlan
+Package: imx-board-wlan
 Section: net
 Priority: optional
 Architecture: all
 Depends:
-Description: Additional configuration for AIY Board wireless networking
+Description: Additional configuration for Enterprise Board wireless networking

@@ -1,5 +1,5 @@
 [Unit]
-Description=AIY Board WLAN
+Description=Enterprise Board WLAN
 
 [Service]
 Type=oneshot
