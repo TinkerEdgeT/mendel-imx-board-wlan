@@ -134,12 +134,29 @@ def WriteBluetoothMacAddress(next_mac):
         print('Error writing bluetooth configuration to %s: %s' % (BD_ADDR_PATH, e))
 
 
+def IsDVTMacAddress(base_mac_address):
+    '''Checks to see if the given MAC address is within the allocated DVT range.'''
+    dvt_mac_start = MacDeviceSuffixToNumber('51:F7:6E')
+    dvt_mac_end   = MacDeviceSuffixToNumber('51:FA:1B')
+    mac_suffix    = MacDeviceSuffixToNumber(GetMacDeviceSuffixString(base_mac_address))
+
+    if mac_suffix >= dvt_mac_start and mac_suffix <= dvt_mac_end:
+        return True
+
+    return False
+
+
 def Main():
     base_mac_address = FindEthernetMacString(ETHERNET_DEVICE)
 
     if base_mac_address == None:
         sys.stderr.write('Unable to find MAC address for device %s\n' % (ETHERNET_DEVICE))
         sys.exit(1)
+
+    if IsDVTMacAddress(base_mac_address):
+        sys.stderr.write('Detected DVT MAC address for device %s\n' % (ETHERNET_DEVICE))
+        sys.stderr.write('Cowardly refusing to set the MAC addresses\n')
+        sys.exit(0)
 
     next_mac = GenerateNextMac(base_mac_address)
     print('Wifi/Bt MAC address will be %s' % next_mac)
