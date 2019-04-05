@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python
 
 '''This script generates the wifi and bluetooth MAC addresses assigned to a
 board, given the MAC address of it's primary ethernet interface. It's primary
