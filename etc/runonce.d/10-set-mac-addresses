@@ -109,7 +109,7 @@ def FindEthernetMacString(device):
         if len(address) == 0:
             return None
         address = address[:-1]
-        return address
+        return address.lower()
     except Exception as e:
         print('Error reading %s: %s' % (sysfs_path, e))
         return None
@@ -147,11 +147,9 @@ def WriteBluetoothMacAddress(next_mac):
 
 def IsDVTMacAddress(base_mac_address):
     '''Checks to see if the given MAC address is within the allocated DVT range.'''
-    dvt_mac_start = MacDeviceSuffixToNumber('51:F7:6E')
-    dvt_mac_end   = MacDeviceSuffixToNumber('51:FA:1B')
-    mac_suffix    = MacDeviceSuffixToNumber(GetMacDeviceSuffixString(base_mac_address))
+    prefix_string = GetMacDevicePrefixString(base_mac_address)
 
-    if mac_suffix >= dvt_mac_start and mac_suffix <= dvt_mac_end:
+    if prefix_string == 'f4:f5:e8':
         return True
 
     return False
