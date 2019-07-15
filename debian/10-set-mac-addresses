@@ -16,16 +16,14 @@ import struct
 import sys
 
 
-MAC_VENDOR_PREFIX_STR = '70:20:84'
-
 BD_ADDR_PATH = '/etc/bluetooth/.bt_nv.bin'
 WIFI_ADDR_PATH = '/lib/firmware/wlan/wlan_mac.bin'
 
 BD_NVITEM = 0x02
 BD_RDWR_PROT = 0x00
 BD_NVITEM_SIZE = 0x06
-BD_ADDR_HEADER_STRUCT = r'BBB'
-BD_ADDR_MAC_STRUCT = r'BBBBBB'
+BD_ADDR_HEADER_STRUCT = r'<BBB'
+BD_ADDR_MAC_STRUCT = r'HHH'
 
 WIFI_CONFIG_TEMPLATE = '''\
 Intf0MacAddress={0}
@@ -43,27 +41,28 @@ def GenerateNextMac(mac_address_str):
     any other checking done.
 
     Parameters:
-      mac_address_str: string. Colon-separated six-octet hexidecimal MAC address.
+      mac_address_str: string. Colon-separated six-octet hexadecimal MAC address.
 
     Returns:
       string. The next MAC address in the sequence.
     '''
+    vendor_prefix = GetMacDevicePrefixString(mac_address_str)
     device_suffix = GetMacDeviceSuffixString(mac_address_str)
     suffix_number = MacDeviceSuffixToNumber(device_suffix)
     suffix_string = MacDeviceSuffixNumberToString(suffix_number + 1)
-    next_mac = MAC_VENDOR_PREFIX_STR + ':' + suffix_string
+    next_mac = vendor_prefix + ':' + suffix_string
     return next_mac
 
 
 def MacDeviceSuffixNumberToString(device_suffix_number):
-    '''Given a device suffix number, generate a colon-separated hexidecimal
+    '''Given a device suffix number, generate a colon-separated hexadecimal
     representation.
 
     Parameters:
       device_suffix_number: integer. The number to convert into a MAC suffix.
 
     Returns:
-      string. The colon-separated hexidecimal version of the number passed in.
+      string. The colon-separated hexadecimal version of the number passed in.
     '''
     suffix_string = '%06x' % device_suffix_number
     suffix_array = []
@@ -75,16 +74,23 @@ def MacDeviceSuffixNumberToString(device_suffix_number):
 
 
 def MacDeviceSuffixToNumber(mac_suffix):
-    '''Converts a given a three-octet colon separated hexidecimal MAC device suffix
+    '''Converts a given a three-octet colon separated hexadecimal MAC device suffix
     into an integer.'''
     mac_array = mac_suffix.split(':')
     flatmac = ''.join(mac_array)
     return int(flatmac, 16)
 
 
+def GetMacDevicePrefixString(mac_address):
+    '''Return the vendor prefix from a given a full six-octet colon separated
+    hexadecimal MAC.'''
+    mac_array = mac_address.split(':')
+    return ':'.join(mac_array[:3])
+
+
 def GetMacDeviceSuffixString(mac_address):
     '''Strip the vendor prefix from a given a full six-octet colon separated
-    hexidecimal MAC.'''
+    hexadecimal MAC.'''
     mac_array = mac_address.split(':')
     return ':'.join(mac_array[3:])
 
@@ -103,7 +109,7 @@ def FindEthernetMacString(device):
         if len(address) == 0:
             return None
         address = address[:-1]
-        return address
+        return address.lower()
     except Exception as e:
         print('Error reading %s: %s' % (sysfs_path, e))
         return None
@@ -123,12 +129,17 @@ def WriteWifiMacAddress(next_mac):
 def WriteBluetoothMacAddress(next_mac):
     '''Writes the given MAC address string to a binary file readable by Bluez.'''
     mac_bytes = [int(x, 16) for x in next_mac.split(':')]
+    even_bytes = mac_bytes[0::2]
+    odd_bytes = mac_bytes[1::2]
+    zipped_bytes = zip(even_bytes, odd_bytes)
+    mac_bytes = [(x << 8) + y for x, y in zipped_bytes]
+    mac_bytes.reverse()
 
     try:
         with open(BD_ADDR_PATH, 'w') as fp:
-            fp.write(struct.pack(BD_ADDR_HEADER_STRUCT, BD_NVITEM, BD_RDWR_PROT,
-                                 BD_NVITEM_SIZE))
-            fp.write(struct.pack(BD_ADDR_MAC_STRUCT, *mac_bytes))
+            fp.write(struct.pack(BD_ADDR_HEADER_STRUCT + BD_ADDR_MAC_STRUCT,
+                                 BD_NVITEM, BD_RDWR_PROT, BD_NVITEM_SIZE,
+                                 *mac_bytes))
         return True
     except Exception as e:
         print('Error writing bluetooth configuration to %s: %s' % (BD_ADDR_PATH, e))
@@ -136,11 +147,9 @@ def WriteBluetoothMacAddress(next_mac):
 
 def IsDVTMacAddress(base_mac_address):
     '''Checks to see if the given MAC address is within the allocated DVT range.'''
-    dvt_mac_start = MacDeviceSuffixToNumber('51:F7:6E')
-    dvt_mac_end   = MacDeviceSuffixToNumber('51:FA:1B')
-    mac_suffix    = MacDeviceSuffixToNumber(GetMacDeviceSuffixString(base_mac_address))
+    prefix_string = GetMacDevicePrefixString(base_mac_address)
 
-    if mac_suffix >= dvt_mac_start and mac_suffix <= dvt_mac_end:
+    if prefix_string == 'f4:f5:e8':
         return True
 
     return False
