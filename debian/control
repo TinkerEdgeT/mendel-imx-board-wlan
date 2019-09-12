@@ -1,6 +1,6 @@
 Source: imx-board-wlan
 Maintainer: Coral <coral-support@google.com>
-Build-Depends: debhelper (>=10)
+Build-Depends: debhelper (>=10), linux-headers-4.14.98-imx, linux-kbuild-4.14.98-imx
 Section: net
 Priority: optional
 Standards-Version: 3.9.8
