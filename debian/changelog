@@ -1,9 +1,9 @@
-imx-board-wlan (4-1) UNRELEASED; urgency=medium
+imx-board-wlan (4-1) mendel-day; urgency=medium
 
   * Build qcacld-2.0 module out of tree
   * Restructure package a bit
 
- -- Coral <coral-support@google.com>  Mon, 15 Jul 2019 13:42:26 -0700
+ -- Coral <coral-support@google.com>  Mon, 07 Oct 2019 13:22:24 -0500
 
 imx-board-wlan (3-1) mendel-chef; urgency=medium
 
